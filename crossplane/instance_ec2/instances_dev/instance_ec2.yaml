@@ -1,0 +1,39 @@
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: Instance
+metadata:
+  annotations:
+    uptest.upbound.io/timeout: "3600"
+    meta.upbound.io/example-id: ec2/v1beta1/instance
+  labels:
+    nameinstance: instance-dev-001
+  name: instance-dev-001
+spec:
+  forProvider:
+    region: us-east-1
+    ami: ami-04b70fa74e45c3917
+    instanceType: t2.micro
+    associatePublicIpAddress: true
+    networkInterface:
+    - deviceIndex: 0
+      networkInterfaceIdSelector:
+        matchLabels:
+          networkInterfaceinstancedev: eniinstancedev
+    creditSpecification:
+    - cpuCredits: unlimited
+    tags:
+      Name: instance-dev-001
+---
+
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: NetworkInterface
+metadata:
+  annotations:
+    meta.upbound.io/example-id: ec2/v1beta1/instance
+  labels:
+    networkInterfaceinstancedev: eniinstancedev
+  name: eniinstancedev
+spec:
+  forProvider:
+    region: us-east-1
+    subnetIdRef:
+      name: subnet-dev-001-public

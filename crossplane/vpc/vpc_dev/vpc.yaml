@@ -1,0 +1,95 @@
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: VPC
+metadata:
+  name: vpc-dev-001
+  annotations:
+    meta.upbound.io/example-id: ec2/v1beta1/vpc
+  labels:
+    name: vpc-dev-001
+spec:
+  forProvider:
+    region: us-east-1
+    cidrBlock: 10.0.0.0/16
+    tags:
+      Name: vpc-dev-001
+---
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: Subnet
+metadata:
+  name: subnet-dev-001-public
+spec:
+  forProvider:
+    region: us-east-1
+    availabilityZone: us-east-1b
+    vpcIdRef:
+      name: vpc-dev-001
+    cidrBlock: 10.0.10.0/24
+    tags:
+      Name: subnet-dev-001-public
+---
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: Subnet
+metadata:
+  name: subnet-dev-001-private
+spec:
+  forProvider:
+    region: us-east-1
+    availabilityZone: us-east-1c
+    vpcIdRef:
+      name: vpc-dev-001
+    cidrBlock: 10.0.20.0/24
+    tags:
+      Name: subnet-dev-001-private
+---
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: InternetGateway
+metadata:
+  name: igw-vpc-dev-001
+spec:
+  forProvider:
+    region: us-east-1
+    tags:
+      Name: igw-vpc-dev-001 
+    vpcIdRef:
+      name: vpc-dev-001
+---
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: Route
+metadata:
+  name: route
+spec:
+  forProvider:
+    region: us-east-1
+    destinationCidrBlock: 0.0.0.0/0
+    gatewayIdRef:
+      name: igw-vpc-dev-001
+    routeTableIdRef:
+      name: rt-table
+---
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: RouteTable
+metadata:
+  name: rt-table-public
+  labels:
+    testing.upbound.io/example-name: table
+spec:
+  forProvider:
+    region: us-east-1
+    tags:
+      Name: rt-table-public
+    vpcIdRef:
+      name: vpc-dev-001
+---
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: RouteTableAssociation
+metadata:
+  labels:
+    testing.upbound.io/example-name: rta
+  name: rta
+spec:
+  forProvider:
+    region: us-east-1
+    routeTableIdRef:
+      name: rt-table
+    subnetIdRef:
+      name: subnet-dev-001-public

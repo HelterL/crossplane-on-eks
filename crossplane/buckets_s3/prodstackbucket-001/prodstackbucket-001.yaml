@@ -1,0 +1,52 @@
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: prodstackbucket-001
+  labels:
+    namebucket: prodstackbucket-001
+spec:
+  forProvider:
+    region: us-east-1
+    objectLockEnabled: true
+    tags:
+      Name: 
+      Env: Prod
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketLifecycleConfiguration
+metadata:
+  annotations:
+    meta.upbound.io/example-id: s3/v1beta1/bucketlifecycleconfiguration
+  name: prodstackbucket-001-lifecycleconfig
+  labels:
+    lifecycleconfig: prodstackbucket-001-lifecycleconfig
+spec:
+  forProvider:
+    region: us-east-1
+    bucketSelector:
+      matchLabels:
+        namebucket: prodstackbucket-001
+    rule:
+      - id: rule-1
+        status: Enabled
+        filter:
+          - prefix: "tmp/"
+        expiration:
+          - days: 15
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketVersioning
+metadata:
+  annotations:
+    meta.upbound.io/example-id: s3/v1beta1/bucketversioning
+  name: prodstackbucket-001-versioning
+  labels:
+    Bucketversioning: prodstackbucket-001-versioning
+spec:
+  forProvider:
+    bucketSelector:
+      matchLabels:
+        namebkt: prodstackbucket-001
+    region: us-east-1
+    versioningConfiguration:
+    - status: Enabled
